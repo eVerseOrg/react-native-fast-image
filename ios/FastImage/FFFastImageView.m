@@ -1,6 +1,7 @@
 #import "FFFastImageView.h"
 #import <SDWebImage/UIImage+MultiFormat.h>
 #import <SDWebImage/UIView+WebCache.h>
+#import <sys/utsname.h>
 
 @interface FFFastImageView()
 
@@ -20,6 +21,16 @@
     self = [super init];
     self.resizeMode = RCTResizeModeCover;
     self.clipsToBounds = YES;
+    struct utsname systemInfo;
+    uname(&systemInfo);
+    NSString *modelName = [NSString stringWithCString:systemInfo.machine
+                       encoding:NSUTF8StringEncoding];
+    NSString *iPhone13Pro = @"iPhone14,2";
+    NSString *iPhone13ProMax = @"iPhone14,3";
+
+    if ([modelName isEqualToString:iPhone13Pro] || [modelName isEqualToString:iPhone13ProMax]) {
+        self.playbackRate = 0.5;
+    }
     return self;
 }
 
@@ -137,13 +148,13 @@
             }
             self.hasCompleted = YES;
             [self sendOnLoad:image];
-            
+
             if (self.onFastImageLoadEnd) {
                 self.onFastImageLoadEnd(@{});
             }
             return;
         }
-        
+
         // Set headers.
         NSDictionary *headers = _source.headers;
         SDWebImageDownloaderRequestModifier *requestModifier = [SDWebImageDownloaderRequestModifier requestModifierWithBlock:^NSURLRequest * _Nullable(NSURLRequest * _Nonnull request) {
@@ -155,7 +166,7 @@
             return [mutableRequest copy];
         }];
         SDWebImageContext *context = @{SDWebImageContextDownloadRequestModifier : requestModifier};
-        
+
         // Set priority.
         SDWebImageOptions options = SDWebImageRetryFailed | SDWebImageHandleCookies;
         switch (_source.priority) {
@@ -169,7 +180,7 @@
                 options |= SDWebImageHighPriority;
                 break;
         }
-        
+
         switch (_source.cacheControl) {
             case FFFCacheControlWeb:
                 options |= SDWebImageRefreshCached;
@@ -180,7 +191,7 @@
             case FFFCacheControlImmutable:
                 break;
         }
-        
+
         if (self.onFastImageLoadStart) {
             self.onFastImageLoadStart(@{});
             self.hasSentOnLoadStart = YES;
@@ -189,7 +200,7 @@
         }
         self.hasCompleted = NO;
         self.hasErrored = NO;
-        
+
         [self downloadImage:_source options:options context:context];
     }
 }
