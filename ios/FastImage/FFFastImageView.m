@@ -1,7 +1,6 @@
 #import "FFFastImageView.h"
 #import <SDWebImage/UIImage+MultiFormat.h>
 #import <SDWebImage/UIView+WebCache.h>
-#import <sys/utsname.h>
 
 @interface FFFastImageView()
 
@@ -21,16 +20,6 @@
     self = [super init];
     self.resizeMode = RCTResizeModeCover;
     self.clipsToBounds = YES;
-    struct utsname systemInfo;
-    uname(&systemInfo);
-    NSString *modelName = [NSString stringWithCString:systemInfo.machine
-                       encoding:NSUTF8StringEncoding];
-    NSString *iPhone13Pro = @"iPhone14,2";
-    NSString *iPhone13ProMax = @"iPhone14,3";
-
-    if ([modelName isEqualToString:iPhone13Pro] || [modelName isEqualToString:iPhone13ProMax]) {
-        self.playbackRate = 0.5;
-    }
     return self;
 }
 
